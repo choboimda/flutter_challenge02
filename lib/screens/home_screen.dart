@@ -8,21 +8,22 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  static const twentyFiveMinutes = 1500;
-  static const fiveMinutes = 300;
-  int totalSeconds = twentyFiveMinutes;
-  int totalRestSeconds = fiveMinutes;
-  bool isRunning = false;
-  bool restTime = false;
-  int totalPomodoros = 0;
-  int totalRound = 0;
-  int startTime = 0;
-  int limitPomodoros = 2;
-  int limitTotalRounds = 2;
-  late Timer timer;
-  late Timer restTimer;
+const twentyFiveMinutes = 1500;
+const fiveMinutes = 300;
+int totalSeconds = twentyFiveMinutes;
+int totalRestSeconds = fiveMinutes;
+bool isRunning = false;
+bool restTime = false;
+int totalPomodoros = 0;
+int totalRound = 0;
+int startTime = 0;
+int limitPomodoros = 2;
+int limitTotalRounds = 2;
+int settingTime = 0;
+late Timer timer;
+late Timer restTimer;
 
+class _HomeScreenState extends State<HomeScreen> {
   void startRest() {
     setState(() {
       restTimer = Timer.periodic(const Duration(seconds: 1), restOnTick);
@@ -89,12 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  int setTimer({required settingTime}) {
+  void setTimer() {
     setState(() {
       startTime = settingTime * 60;
       totalSeconds = settingTime * 60;
     });
-    return settingTime;
   }
 
   void countPomodoros() {
@@ -205,32 +205,38 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    ButtonContainer(
-                                      timerSetting: 1,
-                                      parentFucntion: () =>
-                                          setTimer(settingTime: 1),
-                                    ),
-                                    ButtonContainer(
-                                      timerSetting: 20,
-                                      parentFucntion: () =>
-                                          setTimer(settingTime: 20),
-                                    ),
-                                    ButtonContainer(
-                                      timerSetting: 25,
-                                      parentFucntion: () =>
-                                          setTimer(settingTime: 25),
-                                    ),
-                                    ButtonContainer(
-                                      timerSetting: 30,
-                                      parentFucntion: () =>
-                                          setTimer(settingTime: 30),
-                                    ),
-                                    ButtonContainer(
-                                      timerSetting: 35,
-                                      parentFucntion: () =>
-                                          setTimer(settingTime: 35),
-                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child:
+                                          ToggleTest(parentsFunction: setTimer),
+                                    )
+                                    // ButtonContainer(
+                                    //   timerSetting: 1,
+                                    //   parentFucntion: () =>
+                                    //       setTimer(settingTime: 1),
+                                    // ),
+                                    // ButtonContainer(
+                                    //   timerSetting: 20,
+                                    //   parentFucntion: () =>
+                                    //       setTimer(settingTime: 20),
+                                    // ),
+                                    // ButtonContainer(
+                                    //   timerSetting: 25,
+                                    //   parentFucntion: () =>
+                                    //       setTimer(settingTime: 25),
+                                    // ),
+                                    // ButtonContainer(
+                                    //   timerSetting: 30,
+                                    //   parentFucntion: () =>
+                                    //       setTimer(settingTime: 30),
+                                    // ),
+                                    // ButtonContainer(
+                                    //   timerSetting: 35,
+                                    //   parentFucntion: () =>
+                                    //       setTimer(settingTime: 35),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -355,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class ButtonContainer extends StatefulWidget {
-  final Function parentFucntion;
+  final Function() parentFucntion;
   final int? timerSetting;
   const ButtonContainer({
     super.key,
@@ -373,11 +379,59 @@ class _ButtonContainerState extends State<ButtonContainer> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       child: ElevatedButton(
-        onPressed: () {
-          widget.parentFucntion();
-        },
+        onPressed: widget.parentFucntion,
         child: Text("${widget.timerSetting}"),
       ),
+    );
+  }
+}
+
+class ToggleTest extends StatefulWidget {
+  final Function() parentsFunction;
+  const ToggleTest({
+    super.key,
+    required this.parentsFunction,
+  });
+  @override
+  State<ToggleTest> createState() => _ToggleTestState();
+}
+
+class _ToggleTestState extends State<ToggleTest> {
+  List<int> timeList = [1, 2, 3, 4, 5];
+  final List<bool> _isSelected = [false, false, false, false, false];
+  int selectCheck = 0;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ToggleButtons(
+          isSelected: _isSelected,
+          onPressed: (index) {
+            setState(() {
+              settingTime = timeList[index];
+              widget.parentsFunction();
+              _isSelected[index] = !_isSelected[index];
+              selectCheck = index;
+              if (selectCheck == index) {
+                _isSelected[index] = true;
+              }
+              for (int i = 0; i < _isSelected.length; i++) {
+                if (i == index) continue;
+                _isSelected[i] = false;
+                // Do something with list[i]
+              }
+            });
+          },
+          children: [
+            Text("${timeList[0]}"),
+            Text("${timeList[1]}"),
+            Text("${timeList[2]}"),
+            Text("${timeList[3]}"),
+            Text("${timeList[4]}"),
+          ],
+        ),
+      ],
     );
   }
 }
